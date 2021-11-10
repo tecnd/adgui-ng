@@ -1,7 +1,7 @@
 import dearpygui.dearpygui as dpg
 
-ROWS = 5
-COLS = 5
+ROWS = 10
+COLS = 10
 
 mouse_pos = (0,0)
 mouse_clicked_pos = (0,0) # Global to keep track of initial mouse click
@@ -99,13 +99,13 @@ with dpg.handler_registry():
 with dpg.window() as primary:
     # Create table
     with dpg.table(header_row=False, borders_innerH=True, borders_outerH=True, borders_innerV=True,
-                   borders_outerV=True, policy=dpg.mvTable_SizingFixedFit):
+                   borders_outerV=True, policy=dpg.mvTable_SizingStretchProp):
         for i in range(COLS):
             dpg.add_table_column()
         for i in range(ROWS):
             with dpg.table_row():
                 for j in range(COLS):
-                    dpg.add_selectable(label=f"Cell", user_data=(i, j), width=100, height=100) # Add cell coordinates to user_data of each cell
+                    dpg.add_selectable(label=f"Cell", user_data=(i, j)) # Add cell coordinates to user_data of each cell
                     dpg.bind_item_handler_registry(dpg.last_item(), cell_handler)
 
 # dpg.show_item_registry()
