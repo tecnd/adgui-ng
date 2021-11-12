@@ -6,7 +6,8 @@ NUM_DIGITAL_CHANNELS = 64
 NUM_COLUMNS = 20
 
 layout = dict()
-
+pages = [f'Page {i}' for i in range(NUMBER_OF_PAGES)]
+units = ['Unit'] * NUM_ANALOG_CHANNELS
 
 def layout_windows():
     if 'page_selector_y' not in layout:
@@ -29,8 +30,16 @@ def layout_windows():
 
 
 def rename_callback(selector, app_data, user_data):
-    input, tab, popup = user_data
-    dpg.configure_item(tab, label=dpg.get_value(input))
+    input, parent, popup = user_data
+    # Update internal data arrays
+    args = str(parent).split(';')
+    if len(args) > 1:
+        if args[0] == 'unit':
+            units[int(args[1])] = str(dpg.get_value(input))
+        elif args[0] == 'page':
+            pages[int(args[1])] = str(dpg.get_value(input))
+            
+    dpg.configure_item(parent, label=dpg.get_value(input))
     dpg.configure_item(popup, show=False)
 
 dpg.create_context()
@@ -45,7 +54,7 @@ with dpg.viewport_menu_bar(tag='menubar'):
 with dpg.window(tag='page_selector', label='Page Selector', no_close=True, width=dpg.get_viewport_width()):
     with dpg.group(horizontal=True):
         with dpg.group():
-            dpg.add_button(label='Run Cycle')
+            dpg.add_button(label='Run Cycle', callback=lambda: print(pages))
             dpg.add_button(label='Stop')
             dpg.add_button(label='Scan')
             dpg.add_checkbox(label='Repeat')
@@ -83,7 +92,7 @@ with dpg.window(tag='tables', label='Tables', no_close=True, width=dpg.get_viewp
             # Center bar, includes the main tables
             with dpg.tab_bar():
                 for i in range(NUMBER_OF_PAGES):
-                    with dpg.tab(label=f'Page {i}') as tab:
+                    with dpg.tab(label=f'Page {i}', tag=f'page;{i}') as tab:
                         with dpg.popup(tab) as popup:
                             dpg.add_input_text(width=75, hint=f'Page {i}')
                             dpg.add_button(label='Rename', user_data=(dpg.last_item(), tab, popup), callback=rename_callback)
@@ -124,7 +133,10 @@ with dpg.window(tag='tables', label='Tables', no_close=True, width=dpg.get_viewp
                     dpg.add_table_column()
                     for row in range(NUM_ANALOG_CHANNELS):
                         with dpg.table_row():
-                            dpg.add_selectable(label='Unit')
+                            parent = dpg.add_selectable(label='Unit', tag=f'unit;{row}')
+                            with dpg.popup(parent) as popup:
+                                dpg.add_input_text(width=75, hint='Unit')
+                                dpg.add_button(label='Rename', user_data=(dpg.last_item(), parent, popup), callback=rename_callback)
                 dpg.add_text('Scan Values')
                 with dpg.table(header_row=False, borders_innerH=True, borders_outerH=True, borders_innerV=True,
                                borders_outerV=True):
