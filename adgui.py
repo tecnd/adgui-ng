@@ -33,9 +33,8 @@ def rename_callback(selector, app_data, user_data):
     dpg.configure_item(tab, label=dpg.get_value(input))
     dpg.configure_item(popup, show=False)
 
-
 dpg.create_context()
-dpg.create_viewport(title='Custom Title', width=1080, height=1920)
+dpg.create_viewport(title='Custom Title', width=1080, height=2560)
 
 with dpg.viewport_menu_bar(tag='menubar'):
     with dpg.menu(label='File'):
@@ -54,7 +53,7 @@ with dpg.window(tag='page_selector', label='Page Selector', no_close=True, width
             for i in range(NUMBER_OF_PAGES):
                 dpg.add_checkbox(label=f'Page {i}')
 
-with dpg.window(tag='tables', label='Tables', width=dpg.get_viewport_width()):
+with dpg.window(tag='tables', label='Tables', no_close=True, width=dpg.get_viewport_width()):
     with dpg.table(header_row=False, policy=dpg.mvTable_SizingStretchProp):
         dpg.add_table_column()
         dpg.add_table_column()
@@ -62,6 +61,7 @@ with dpg.window(tag='tables', label='Tables', width=dpg.get_viewport_width()):
         with dpg.table_row():
             # Left bar, includes the channel names and numbers
             with dpg.group(width=150):
+                dpg.add_spacer(height=57)
                 dpg.add_text('Analog Channels | Line')
                 with dpg.table(header_row=False, borders_innerH=True, borders_outerH=True, borders_innerV=True,
                                borders_outerV=True, policy=dpg.mvTable_SizingStretchProp):
@@ -86,9 +86,18 @@ with dpg.window(tag='tables', label='Tables', width=dpg.get_viewport_width()):
                     with dpg.tab(label=f'Page {i}') as tab:
                         with dpg.popup(tab) as popup:
                             dpg.add_input_text(width=75, hint=f'Page {i}')
-                            dpg.add_button(label='Rename', user_data=(
-                                dpg.last_item(), tab, popup), callback=rename_callback)
-                        dpg.add_text(f'This is page {i}')
+                            dpg.add_button(label='Rename', user_data=(dpg.last_item(), tab, popup), callback=rename_callback)
+                        with dpg.table(header_row=False, borders_innerH=True, borders_outerH=True, borders_innerV=True,
+                                        borders_outerV=True, policy=dpg.mvTable_SizingStretchProp):
+                            for col in range(NUM_COLUMNS):
+                                dpg.add_table_column()
+                            with dpg.table_row():
+                                for col in range(NUM_COLUMNS):
+                                    dpg.add_selectable(label="Label")
+                            with dpg.table_row():
+                                for col in range(NUM_COLUMNS):
+                                    dpg.add_selectable(label="Time")
+                        dpg.add_text('Analog Table')
                         with dpg.table(header_row=False, borders_innerH=True, borders_outerH=True, borders_innerV=True,
                                         borders_outerV=True, policy=dpg.mvTable_SizingStretchProp):
                             for col in range(NUM_COLUMNS):
@@ -97,9 +106,18 @@ with dpg.window(tag='tables', label='Tables', width=dpg.get_viewport_width()):
                                 with dpg.table_row():
                                     for col in range(NUM_COLUMNS):
                                         dpg.add_selectable(label="Cell")
+                        dpg.add_text('Digital Table')
+                        with dpg.table(header_row=False, borders_innerH=True, borders_outerH=True, borders_innerV=True,
+                                        borders_outerV=True, policy=dpg.mvTable_SizingStretchProp):
+                            for col in range(NUM_COLUMNS):
+                                dpg.add_table_column()
+                            for row in range(NUM_DIGITAL_CHANNELS):
+                                with dpg.table_row():
+                                    for col in range(NUM_COLUMNS):
+                                        dpg.add_selectable(label="Cell")
             # Right bar, includes the analog units and scan values
             with dpg.group(width=100):
-                dpg.add_spacer(height=40)
+                dpg.add_spacer(height=57)
                 dpg.add_text('Analog Units')
                 with dpg.table(header_row=False, borders_innerH=True, borders_outerH=True, borders_innerV=True,
                                borders_outerV=True):
@@ -117,7 +135,7 @@ with dpg.window(tag='tables', label='Tables', width=dpg.get_viewport_width()):
 
 dpg.setup_dearpygui()
 dpg.show_viewport()
-# dpg.show_style_editor()
+
 menubar = True
 first = True
 while dpg.is_dearpygui_running():
